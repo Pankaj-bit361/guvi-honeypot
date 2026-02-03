@@ -79,16 +79,35 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
     // Log incoming request for debugging
     console.log('📥 Incoming request body:', JSON.stringify(req.body, null, 2));
 
-    const { sessionId, message, conversationHistory = [] } = req.body;
+    const { sessionId, message, text, conversationHistory = [] } = req.body;
 
-    // Validate request - be more flexible with message format
-    // Support both { message: { text: "..." } } and { message: "..." }
-    const messageText = (typeof message === 'string') ? message : message?.text;
-    const sender = (typeof message === 'object') ? (message?.sender || 'scammer') : 'scammer';
+    // Validate request - be VERY flexible with message format
+    // Support: { message: { text: "..." } }, { message: "..." }, { text: "..." }
+    let messageText;
+    let sender = 'scammer';
+
+    if (typeof message === 'string') {
+      messageText = message;
+    } else if (message?.text) {
+      messageText = message.text;
+      sender = message.sender || 'scammer';
+    } else if (text) {
+      messageText = text;
+    }
 
     if (!sessionId || !messageText) {
       console.log('❌ Validation failed - sessionId:', sessionId, 'messageText:', messageText);
-      return res.status(400).json({ status: 'error', reply: 'Missing sessionId or message.text', received: req.body });
+      console.log('❌ Full body received:', JSON.stringify(req.body));
+      return res.status(400).json({
+        status: 'error',
+        message: 'INVALID_REQUEST_BODY',
+        error: 'Missing sessionId or message text',
+        expectedFormat: {
+          sessionId: 'string (required)',
+          message: '{ text: string, sender?: string } OR string (required)'
+        },
+        received: req.body
+      });
     }
 
     console.log('✅ Valid request - sessionId:', sessionId, 'message:', messageText);
