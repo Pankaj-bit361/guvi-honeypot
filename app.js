@@ -31,6 +31,7 @@ const GUVI_CALLBACK_URL = 'https://hackathon.guvi.in/api/updateHoneyPotFinalResu
 const authenticateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.query.api_key;
   if (!apiKey || apiKey !== config.apiKey) {
+    console.log('❌ Auth failed - received key:', apiKey, 'expected:', config.apiKey);
     return res.status(401).json({ status: 'error', reply: 'Unauthorized: Invalid API key' });
   }
   next();
@@ -98,15 +99,10 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
     if (!sessionId || !messageText) {
       console.log('❌ Validation failed - sessionId:', sessionId, 'messageText:', messageText);
       console.log('❌ Full body received:', JSON.stringify(req.body));
+      // Return format matching the hackathon spec: { status, reply }
       return res.status(400).json({
         status: 'error',
-        message: 'INVALID_REQUEST_BODY',
-        error: 'Missing sessionId or message text',
-        expectedFormat: {
-          sessionId: 'string (required)',
-          message: '{ text: string, sender?: string } OR string (required)'
-        },
-        received: req.body
+        reply: 'Missing sessionId or message text'
       });
     }
 
