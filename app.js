@@ -76,15 +76,22 @@ async function sendToGUVI(sessionId, session) {
  */
 app.post('/api/message', authenticateApiKey, async (req, res) => {
   try {
-    const { sessionId, message, conversationHistory = [], metadata = {} } = req.body;
+    // Log incoming request for debugging
+    console.log('📥 Incoming request body:', JSON.stringify(req.body, null, 2));
 
-    // Validate request
-    if (!sessionId || !message || !message.text) {
-      return res.status(400).json({ status: 'error', reply: 'Missing sessionId or message.text' });
+    const { sessionId, message, conversationHistory = [] } = req.body;
+
+    // Validate request - be more flexible with message format
+    // Support both { message: { text: "..." } } and { message: "..." }
+    const messageText = (typeof message === 'string') ? message : message?.text;
+    const sender = (typeof message === 'object') ? (message?.sender || 'scammer') : 'scammer';
+
+    if (!sessionId || !messageText) {
+      console.log('❌ Validation failed - sessionId:', sessionId, 'messageText:', messageText);
+      return res.status(400).json({ status: 'error', reply: 'Missing sessionId or message.text', received: req.body });
     }
 
-    const messageText = message.text;
-    const sender = message.sender || 'scammer';
+    console.log('✅ Valid request - sessionId:', sessionId, 'message:', messageText);
 
     // Get or create session
     const session = conversationStore.getConversation(sessionId);
