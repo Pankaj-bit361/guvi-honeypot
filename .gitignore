@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+
+# Frontend (not needed for hackathon)
+chat-ui/
+
+# Test files
+test.js
+quick-test.js
+debug-test.js
+stress-test.js
+run-test.js
+test-results.json
+output.json
