@@ -2,7 +2,7 @@ const PATTERNS = {
   bankAccounts: /\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{0,6}\b|\b\d{9,18}\b/g,
   upiIds: /[a-zA-Z0-9._-]+@[a-zA-Z][a-zA-Z0-9]*/gi,
   urls: /https?:\/\/[^\s<>"{}|\\^`\[\]();,]+|www\.[^\s<>"{}|\\^`\[\]();,]+/gi,
-  phoneNumbers: /\+91[-.\s]?\d{5}[-.\s]?\d{5}|\+91[-.\s]?[6-9]\d{9}|(?<!\d)[6-9]\d{9}(?!\d)/g,
+  phoneNumbers: /\+?\d{1,4}[-.\s]?\d{5}[-.\s]?\d{5}|\+?\d{1,4}[-.\s]?[6-9]\d{9}|[6-9]\d{9}|\+?\d{10,14}/g,
   emails: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/gi,
   ifscCodes: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g
 };
