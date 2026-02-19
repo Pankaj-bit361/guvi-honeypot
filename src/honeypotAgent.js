@@ -1,14 +1,6 @@
-/**
- * Honeypot AI Agent - Strategic Intelligence Extraction
- * Autonomous agent that engages scammers to extract actionable intelligence
- */
-
 const axios = require('axios');
 const config = require('./config');
 
-/**
- * Strategic Agent System Prompt - Focused on intelligence extraction
- */
 const getAgentPrompt = (extractedIntel) => {
   const hasBank = extractedIntel?.bankAccounts?.length > 0;
   const hasUPI = extractedIntel?.upiIds?.length > 0;
@@ -70,9 +62,6 @@ You: "Beta my phone is old, link not opening properly. Can you tell me what deta
 Respond as the victim persona. Keep it natural, short, and aimed at extracting more intelligence.`;
 };
 
-/**
- * Generate strategic agent response to extract intelligence
- */
 async function generateAgentResponse(scammerMessage, conversationHistory = [], extractedIntel = {}) {
   try {
     const messages = [
@@ -90,8 +79,8 @@ async function generateAgentResponse(scammerMessage, conversationHistory = [], e
         model: config.openRouter.model,
         messages,
         temperature: 0.7,
-        max_tokens: 300,
-        reasoning: { effort: 'none' }
+        max_tokens: 200,
+        reasoning: { enabled: false, effort: 'none' }
       },
       {
         headers: {
@@ -110,9 +99,6 @@ async function generateAgentResponse(scammerMessage, conversationHistory = [], e
   }
 }
 
-/**
- * Fallback responses if AI fails
- */
 function getRandomFallback() {
   const fallbacks = [
     "Beta, network problem ho gaya. Please repeat karo?",

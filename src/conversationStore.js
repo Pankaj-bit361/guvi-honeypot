@@ -1,14 +1,8 @@
-/**
- * In-memory conversation store for tracking multi-turn conversations
- */
 class ConversationStore {
   constructor() {
     this.conversations = new Map();
   }
 
-  /**
-   * Get or create a conversation
-   */
   getConversation(conversationId) {
     if (!this.conversations.has(conversationId)) {
       this.conversations.set(conversationId, {
@@ -33,9 +27,6 @@ class ConversationStore {
     return this.conversations.get(conversationId);
   }
 
-  /**
-   * Add a message to conversation history
-   */
   addMessage(conversationId, role, content) {
     const conversation = this.getConversation(conversationId);
     conversation.messages.push({
@@ -47,9 +38,6 @@ class ConversationStore {
     return conversation;
   }
 
-  /**
-   * Mark scam as detected
-   */
   markScamDetected(conversationId) {
     const conversation = this.getConversation(conversationId);
     conversation.scamDetected = true;
@@ -58,9 +46,6 @@ class ConversationStore {
     return conversation;
   }
 
-  /**
-   * Add extracted intelligence
-   */
   addIntelligence(conversationId, type, value) {
     const conversation = this.getConversation(conversationId);
     if (conversation.extractedIntelligence[type] && !conversation.extractedIntelligence[type].includes(value)) {
@@ -69,9 +54,6 @@ class ConversationStore {
     return conversation;
   }
 
-  /**
-   * Get conversation metrics
-   */
   getMetrics(conversationId) {
     const conversation = this.getConversation(conversationId);
     const now = Date.now();
@@ -86,9 +68,6 @@ class ConversationStore {
     };
   }
 
-  /**
-   * Delete a conversation
-   */
   deleteConversation(conversationId) {
     return this.conversations.delete(conversationId);
   }

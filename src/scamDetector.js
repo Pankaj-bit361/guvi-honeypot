@@ -1,12 +1,7 @@
-/**
- * Scam Detection Module - AI-First Detection with Sentinel System
- */
-
 const axios = require('axios');
 const fs = require('fs');
 const config = require('./config');
 
-// Store all raw OpenRouter responses
 const rawResponses = [];
 
 function saveRawResponse(message, response) {
@@ -159,9 +154,6 @@ You extract patiently.
 You report precisely.
 `;
 
-/**
- * Direct AI scam detection using Sentinel system
- */
 async function detectScam(message, conversationHistory = []) {
   try {
     const detectionPrompt = getSystemPrompt() + `
@@ -182,9 +174,9 @@ For this detection request, analyze the message and respond with JSON ONLY:
         model: config.openRouter.model,
         messages,
         temperature: 0.1,
-        max_tokens: 500,
+        max_tokens: 300,
         response_format: { type: 'json_object' },
-        reasoning: { effort: 'none' }
+        reasoning: { enabled: false, effort: 'none' }
       },
       {
         headers: {
@@ -194,7 +186,6 @@ For this detection request, analyze the message and respond with JSON ONLY:
       }
     );
 
-    // Save raw response to file
     saveRawResponse(message, response.data);
 
     const content = response.data.choices[0].message.content || '{}';
