@@ -47,6 +47,9 @@ app.get('/health', (req, res) => {
  */
 async function sendToGUVI(sessionId, session) {
   try {
+    // Calculate engagement duration
+    const engagementDurationSeconds = Math.floor((Date.now() - session.metrics.startTime) / 1000);
+
     const payload = {
       sessionId,
       scamDetected: session.scamDetected,
@@ -56,7 +59,13 @@ async function sendToGUVI(sessionId, session) {
         upiIds: session.extractedIntelligence.upiIds || [],
         phishingLinks: session.extractedIntelligence.phishingUrls || [],
         phoneNumbers: session.extractedIntelligence.phoneNumbers || [],
+        emailAddresses: session.extractedIntelligence.emails || [],
         suspiciousKeywords: session.suspiciousKeywords || []
+      },
+      engagementMetrics: {
+        engagementDurationSeconds: engagementDurationSeconds,
+        totalMessages: session.messages.length,
+        turnsCompleted: Math.floor(session.messages.length / 2)
       },
       agentNotes: session.agentNotes || 'Scammer engaged via honeypot system'
     };
@@ -195,6 +204,8 @@ function extractSuspiciousKeywords(text) {
  */
 app.get('/api/session/:id', authenticateApiKey, (req, res) => {
   const session = conversationStore.getConversation(req.params.id);
+  const engagementDurationSeconds = Math.floor((Date.now() - session.metrics.startTime) / 1000);
+
   res.json({
     status: 'success',
     sessionId: req.params.id,
@@ -205,7 +216,13 @@ app.get('/api/session/:id', authenticateApiKey, (req, res) => {
       upiIds: session.extractedIntelligence.upiIds || [],
       phishingLinks: session.extractedIntelligence.phishingUrls || [],
       phoneNumbers: session.extractedIntelligence.phoneNumbers || [],
+      emailAddresses: session.extractedIntelligence.emails || [],
       suspiciousKeywords: session.suspiciousKeywords || []
+    },
+    engagementMetrics: {
+      engagementDurationSeconds: engagementDurationSeconds,
+      totalMessages: session.messages.length,
+      turnsCompleted: Math.floor(session.messages.length / 2)
     }
   });
 });
@@ -220,6 +237,8 @@ app.post('/api/session/:id/end', authenticateApiKey, async (req, res) => {
   // Send to GUVI callback
   const sent = await sendToGUVI(req.params.id, session);
 
+  const engagementDurationSeconds = Math.floor((Date.now() - session.metrics.startTime) / 1000);
+
   res.json({
     status: sent ? 'success' : 'partial',
     sessionId: req.params.id,
@@ -231,7 +250,13 @@ app.post('/api/session/:id/end', authenticateApiKey, async (req, res) => {
       upiIds: session.extractedIntelligence.upiIds || [],
       phishingLinks: session.extractedIntelligence.phishingUrls || [],
       phoneNumbers: session.extractedIntelligence.phoneNumbers || [],
+      emailAddresses: session.extractedIntelligence.emails || [],
       suspiciousKeywords: session.suspiciousKeywords || []
+    },
+    engagementMetrics: {
+      engagementDurationSeconds: engagementDurationSeconds,
+      totalMessages: session.messages.length,
+      turnsCompleted: Math.floor(session.messages.length / 2)
     },
     agentNotes: session.agentNotes || 'Session ended'
   });
