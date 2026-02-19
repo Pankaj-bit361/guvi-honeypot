@@ -138,11 +138,9 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
       ].filter(Boolean).length;
 
       const hasGoodIntel = intelTypes >= 1;
-      const hasRichIntel = intelTypes >= 2;
       const msgCount = session.messages.length;
 
-      const shouldSend = (msgCount >= 18 && hasGoodIntel) ||
-                         (msgCount >= 14 && hasRichIntel);
+      const shouldSend = msgCount >= 20 && hasGoodIntel;
 
       if (shouldSend && !session.guviCallbackSent) {
         session.guviCallbackSent = true;
