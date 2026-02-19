@@ -175,8 +175,7 @@ For this detection request, analyze the message and respond with JSON ONLY:
         messages,
         temperature: 0.1,
         max_tokens: 300,
-        response_format: { type: 'json_object' },
-        reasoning: { enabled: false, effort: 'none' }
+        response_format: { type: 'json_object' }
       },
       {
         headers: {

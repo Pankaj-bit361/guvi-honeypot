@@ -79,8 +79,7 @@ async function generateAgentResponse(scammerMessage, conversationHistory = [], e
         model: config.openRouter.model,
         messages,
         temperature: 0.7,
-        max_tokens: 200,
-        reasoning: { enabled: false, effort: 'none' }
+        max_tokens: 500
       },
       {
         headers: {
