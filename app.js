@@ -130,13 +130,21 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
       session.extractedIntelligence = mergeIntelligence(session.extractedIntelligence, responseIntel);
 
       const intel = session.extractedIntelligence;
-      const hasGoodIntel = (intel.bankAccounts?.length > 0) ||
-                           (intel.upiIds?.length > 0) ||
-                           (intel.phoneNumbers?.length > 0) ||
-                           (intel.phishingUrls?.length > 0);
-      const enoughMessages = session.messages.length >= 18;
+      const intelTypes = [
+        intel.bankAccounts?.length > 0,
+        intel.upiIds?.length > 0,
+        intel.phoneNumbers?.length > 0,
+        intel.phishingUrls?.length > 0
+      ].filter(Boolean).length;
 
-      if (hasGoodIntel && enoughMessages && !session.guviCallbackSent) {
+      const hasGoodIntel = intelTypes >= 1;
+      const hasRichIntel = intelTypes >= 2;
+      const msgCount = session.messages.length;
+
+      const shouldSend = (msgCount >= 18 && hasGoodIntel) ||
+                         (msgCount >= 14 && hasRichIntel);
+
+      if (shouldSend && !session.guviCallbackSent) {
         session.guviCallbackSent = true;
         sendToGUVI(sessionId, session).catch(err => console.error('GUVI callback error:', err));
       }
