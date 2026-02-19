@@ -5,7 +5,7 @@ module.exports = {
   apiKey: process.env.API_KEY || 'default-api-key',
   openRouter: {
     apiKey: process.env.OPENROUTER_API_KEY,
-    model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet',
+    model: process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash-lite',
     baseUrl: 'https://openrouter.ai/api/v1/chat/completions'
   },
   appName: process.env.APP_NAME || 'AI-Honeypot-System'
