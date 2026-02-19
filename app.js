@@ -134,7 +134,7 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
                            (intel.upiIds?.length > 0) ||
                            (intel.phoneNumbers?.length > 0) ||
                            (intel.phishingUrls?.length > 0);
-      const enoughMessages = session.messages.length >= 4;
+      const enoughMessages = session.messages.length >= 18;
 
       if (hasGoodIntel && enoughMessages && !session.guviCallbackSent) {
         session.guviCallbackSent = true;
