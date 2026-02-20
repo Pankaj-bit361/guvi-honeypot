@@ -76,7 +76,10 @@ async function sendToGUVI(sessionId, session) {
         bankAccounts: session.extractedIntelligence.bankAccounts || [],
         upiIds: session.extractedIntelligence.upiIds || [],
         phishingLinks: session.extractedIntelligence.phishingUrls || [],
-        emailAddresses: session.extractedIntelligence.emails || []
+        emailAddresses: session.extractedIntelligence.emails || [],
+        caseIds: session.extractedIntelligence.caseIds || [],
+        policyNumbers: session.extractedIntelligence.policyNumbers || [],
+        orderNumbers: session.extractedIntelligence.orderNumbers || []
       },
       agentNotes: session.agentNotes || 'Scammer engaged via honeypot system',
       confidenceLevel: (session.confidence || 85) / 100

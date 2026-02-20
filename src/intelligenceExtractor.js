@@ -4,7 +4,11 @@ const PATTERNS = {
   urls: /https?:\/\/[^\s<>"{}|\\^`\[\]();,]+|www\.[^\s<>"{}|\\^`\[\]();,]+/gi,
   phoneNumbers: /\+\d{1,4}[-.\s]?\d{5}[-.\s]?\d{5}|\+\d{1,4}[-.\s]?[6-9]\d{9}|(?<![0-9])[6-9]\d{9}(?![0-9])/g,
   emails: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/gi,
-  ifscCodes: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g
+  ifscCodes: /\b[A-Z]{4}0[A-Z0-9]{6}\b/g,
+  // New patterns for missing data types
+  caseIds: /(?:case|reference|ref|ticket|complaint|tracking)[\s#:.-]*(?:no|number|id)?[\s#:.-]*([A-Z0-9]{4,20})/gi,
+  policyNumbers: /(?:policy|insurance)[\s#:.-]*(?:no|number|id)?[\s#:.-]*([A-Z0-9]{6,20})/gi,
+  orderNumbers: /(?:order|parcel|shipment|awb|consignment)[\s#:.-]*(?:no|number|id)?[\s#:.-]*([A-Z0-9]{6,20})/gi
 };
 
 function extractIntelligence(message) {
@@ -14,7 +18,10 @@ function extractIntelligence(message) {
     phishingUrls: [],
     phoneNumbers: [],
     emails: [],
-    ifscCodes: []
+    ifscCodes: [],
+    caseIds: [],
+    policyNumbers: [],
+    orderNumbers: []
   };
 
   if (!message || typeof message !== 'string') {
@@ -47,6 +54,30 @@ function extractIntelligence(message) {
 
   const ifscMatches = message.match(PATTERNS.ifscCodes) || [];
   intelligence.ifscCodes = [...new Set(ifscMatches)];
+
+  // Extract Case IDs
+  let caseMatch;
+  while ((caseMatch = PATTERNS.caseIds.exec(message)) !== null) {
+    if (caseMatch[1]) intelligence.caseIds.push(caseMatch[1]);
+  }
+  intelligence.caseIds = [...new Set(intelligence.caseIds)];
+  PATTERNS.caseIds.lastIndex = 0;
+
+  // Extract Policy Numbers
+  let policyMatch;
+  while ((policyMatch = PATTERNS.policyNumbers.exec(message)) !== null) {
+    if (policyMatch[1]) intelligence.policyNumbers.push(policyMatch[1]);
+  }
+  intelligence.policyNumbers = [...new Set(intelligence.policyNumbers)];
+  PATTERNS.policyNumbers.lastIndex = 0;
+
+  // Extract Order Numbers
+  let orderMatch;
+  while ((orderMatch = PATTERNS.orderNumbers.exec(message)) !== null) {
+    if (orderMatch[1]) intelligence.orderNumbers.push(orderMatch[1]);
+  }
+  intelligence.orderNumbers = [...new Set(intelligence.orderNumbers)];
+  PATTERNS.orderNumbers.lastIndex = 0;
 
   return intelligence;
 }
