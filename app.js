@@ -38,23 +38,25 @@ async function sendToGUVI(sessionId, session) {
     const engagementDurationSeconds = Math.floor((Date.now() - session.metrics.startTime) / 1000);
 
     const payload = {
+      status: "success",
       sessionId,
       scamDetected: session.scamDetected,
+      scamType: session.scamType || 'financial_fraud',
       totalMessagesExchanged: session.messages.length,
+      engagementDurationSeconds: engagementDurationSeconds,
+      engagementMetrics: {
+        engagementDurationSeconds: engagementDurationSeconds,
+        totalMessagesExchanged: session.messages.length
+      },
       extractedIntelligence: {
+        phoneNumbers: session.extractedIntelligence.phoneNumbers || [],
         bankAccounts: session.extractedIntelligence.bankAccounts || [],
         upiIds: session.extractedIntelligence.upiIds || [],
         phishingLinks: session.extractedIntelligence.phishingUrls || [],
-        phoneNumbers: session.extractedIntelligence.phoneNumbers || [],
-        emailAddresses: session.extractedIntelligence.emails || [],
-        suspiciousKeywords: session.suspiciousKeywords || []
+        emailAddresses: session.extractedIntelligence.emails || []
       },
-      engagementMetrics: {
-        engagementDurationSeconds: engagementDurationSeconds,
-        totalMessages: session.messages.length,
-        turnsCompleted: Math.floor(session.messages.length / 2)
-      },
-      agentNotes: session.agentNotes || 'Scammer engaged via honeypot system'
+      agentNotes: session.agentNotes || 'Scammer engaged via honeypot system',
+      confidenceLevel: (session.confidence || 85) / 100
     };
 
     console.log('📤 Sending to GUVI:', JSON.stringify(payload, null, 2));
@@ -112,12 +114,14 @@ app.post('/api/message', authenticateApiKey, async (req, res) => {
     const keywords = extractSuspiciousKeywords(messageText);
     session.suspiciousKeywords = [...new Set([...(session.suspiciousKeywords || []), ...keywords])];
 
-    let scamDetection = { isScam: session.scamDetected };
+    let scamDetection = { isScam: session.scamDetected, confidence: session.confidence || 0 };
     if (!session.scamDetected) {
       scamDetection = await detectScam(messageText, session.messages);
       if (scamDetection.isScam) {
         conversationStore.markScamDetected(sessionId);
         session.agentNotes = `Scam detected: ${scamDetection.scamType || 'unknown'}. ${scamDetection.reasoning || ''}`;
+        session.confidence = scamDetection.confidence || 85;
+        session.scamType = scamDetection.scamType || 'financial_fraud';
       }
     }
 
