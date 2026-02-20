@@ -20,6 +20,29 @@ app.use(express.json());
 
 const GUVI_CALLBACK_URL = 'https://hackathon.guvi.in/api/updateHoneyPotFinalResult';
 
+// Map AI scamType to exact GUVI categories
+function normalizeScamType(aiScamType) {
+  const type = (aiScamType || '').toLowerCase();
+
+  if (type.includes('bank') || type.includes('sbi') || type.includes('hdfc') || type.includes('icici')) return 'bank_fraud';
+  if (type.includes('upi') || type.includes('paytm') || type.includes('phonepe') || type.includes('gpay')) return 'upi_fraud';
+  if (type.includes('phishing') || type.includes('link') || type.includes('url')) return 'phishing_link';
+  if (type.includes('kyc')) return 'kyc_fraud';
+  if (type.includes('job') || type.includes('employment') || type.includes('work from home')) return 'job_scam';
+  if (type.includes('lottery') || type.includes('prize') || type.includes('winner')) return 'lottery_scam';
+  if (type.includes('electric') || type.includes('bill') || type.includes('power')) return 'electricity_bill';
+  if (type.includes('govt') || type.includes('government') || type.includes('scheme') || type.includes('subsidy')) return 'govt_scheme';
+  if (type.includes('crypto') || type.includes('bitcoin') || type.includes('investment')) return 'crypto_investment';
+  if (type.includes('customs') || type.includes('parcel') || type.includes('courier') || type.includes('delivery')) return 'customs_parcel';
+  if (type.includes('tech') || type.includes('support') || type.includes('microsoft') || type.includes('computer')) return 'tech_support';
+  if (type.includes('loan') || type.includes('credit') || type.includes('emi')) return 'loan_approval';
+  if (type.includes('tax') || type.includes('income') || type.includes('itr')) return 'income_tax';
+  if (type.includes('refund')) return 'refund_scam';
+  if (type.includes('insurance')) return 'insurance';
+
+  return 'financial_fraud';
+}
+
 const authenticateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'] || req.query.api_key;
   if (!apiKey || apiKey !== config.apiKey) {
@@ -41,7 +64,7 @@ async function sendToGUVI(sessionId, session) {
       status: "success",
       sessionId,
       scamDetected: session.scamDetected,
-      scamType: session.scamType || 'financial_fraud',
+      scamType: normalizeScamType(session.scamType),
       totalMessagesExchanged: session.messages.length,
       engagementDurationSeconds: engagementDurationSeconds,
       engagementMetrics: {
